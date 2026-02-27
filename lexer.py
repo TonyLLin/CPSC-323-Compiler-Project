@@ -1,22 +1,16 @@
 """
-Lexical Conventions
+Lexer
 
-- keywords: function, integer, real, boolean, if, return,
-            print, scan, while, otherwise, fi, write, read, true, false
-- separators: {, }, ;, (, ),
-- operators: ==, !=, >, <, <=, =>, +, -, *, /, =, E(epsilon?)
-- identifiers: L(L|d|_)*
-- integers: d+
-- reals: d+.d+
-- comments: anything enclose in /* ... */
-
-L = Letter
-d = Digit
-+ = 1+ times
-* = 0+ times
+The lexer is the foundational building block of the RAT26S compiler.
+To perform lexical analysis, the lexer will scan the RAT26S source code
+and tokenizes each line into (token, lexeme) pairs for syntax analysis.
+The six lexical units of the program are keywords, separators, operators,
+identifiers, integers, and reals. RAT26S also allows for comments which
+are ignored by the lexer.
 """
 from FSM import classify
 
+# All RAT26S lexical unit
 KEYWORDS = { "function", "integer", "real", "boolean", "if", "return",
              "print", "scan", "while", "otherwise", "fi", "write",
              "read", "true", "false"}
@@ -28,9 +22,9 @@ def _skip_comment(source: str, pos: int) -> int:
     """
     Skips all the text in commented block /* ... */
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: Index after skipped comment
     """
     pos += 2
     while pos < len(source) - 1:
@@ -39,13 +33,14 @@ def _skip_comment(source: str, pos: int) -> int:
         pos += 1
     raise SyntaxError("Unterminated comment: missing closing */")
 
+
 def _scan_identifier_or_keyword(source: str, pos: int) -> tuple[tuple[str, str], int]:
     """
     Scans for keyword and identifiers.
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: ("Keyword/Identifier", "Lexeme"), Index
     """
     start = pos
 
@@ -59,13 +54,13 @@ def _scan_identifier_or_keyword(source: str, pos: int) -> tuple[tuple[str, str],
     return classify(word), pos
 
 
-def _scan_number(source: str, pos: int):
+def _scan_number(source: str, pos: int) -> tuple[tuple[str, str], int]:
     """
     Scans for reals and integers to pass into FSM to classify.
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: ("Real/Integer", "Lexeme"), Index
     """
     start = pos
     while pos < len(source) and source[pos].isdigit():
@@ -81,22 +76,22 @@ def _scan_number(source: str, pos: int):
 
 def _scan_separator(source: str, pos: int) -> tuple[tuple[str, str], int]:
     """
-    Scans for separators
+    Scans for separators symbols
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: ("Separator", "Lexeme"), Index
     """
     return ("Separator", source[pos]), pos + 1
 
 
-def _scan_operator(source, pos) -> tuple[tuple[str, str], int]:
+def _scan_operator(source: str, pos: int) -> tuple[tuple[str, str], int]:
     """
-    Scans for operators
+    Scanner for operator symbols
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: ("Operator", "Lexeme"), Index
     """
     if source[pos:pos + 2] in MULTI_CHAR_OPERATORS:
         return ("Operator", source[pos:pos + 2]), pos + 2
@@ -105,10 +100,12 @@ def _scan_operator(source, pos) -> tuple[tuple[str, str], int]:
 
 def _next_token(source: str, pos: int) -> tuple[tuple[str, str], int]:
     """
-    Determines the correct scanner based on current character.
-    :param source:
-    :param pos:
-    :return:
+    Takes source string and index position to determines the
+    correct scanner to continue analysis .
+
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: Token result from scan and next index
     """
     char = source[pos]
 
@@ -130,9 +127,9 @@ def lexer(source: str, pos: int) -> tuple[tuple[str, str] | None, int]:
     """
     Returns the next (token, lexeme) tuple from the source, starting at pos.
 
-    :param source:
-    :param pos:
-    :return:
+    :param source: Input string
+    :param pos: Current index of source string
+    :return: (Token, pos) pair
     """
     while pos < len(source):
         # Skip whitespace
@@ -150,16 +147,19 @@ def lexer(source: str, pos: int) -> tuple[tuple[str, str] | None, int]:
 
     return None, pos
 
+# This is the entry point of the lexer, call this function to get token
 def tokenize(source: str) -> list[tuple[str, str]]:
     """
     Tokenize a source string into (token, lexeme) pairs.
 
-    :param source: String to be tokenized.
+    :param source: Input string
     :return: List of (token, lexeme) pairs.
     """
+    # Stores all token, lexeme pair(s)
     tokens = []
     pos = 0
 
+    # Tokenize string by passing current index (pos) and source string into the lexer
     while pos < len(source):
         token, pos = lexer(source, pos)
         if token is None:
@@ -167,7 +167,6 @@ def tokenize(source: str) -> list[tuple[str, str]]:
         tokens.append(token)
     return tokens
 
-
-# Temporary test cases
+# Temporary test case
 for _ in tokenize("while (fahr <= upper) a = 23.00; /* this is a sample */"):
     print(_)
