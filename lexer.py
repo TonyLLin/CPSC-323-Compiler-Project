@@ -1,5 +1,5 @@
 """
-Lexer
+lexer.py
 
 The lexer is the foundational building block of the RAT26S compiler.
 To perform lexical analysis, the lexer will scan the RAT26S source code

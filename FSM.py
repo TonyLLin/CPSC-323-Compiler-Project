@@ -1,113 +1,134 @@
-from random import randint
-import time
+"""
+FSM.py
 
-def classify(source:str):
-    # Add code here
-    print("script starting")
+Object-oriented DFSM for classifying identifiers, integers, and reals.
 
-    State = type( "State", ( object, ), {} )
-
-    #====================================================================#
-    # State Descriptions
-    #====================================================================#
-
-    class onState(State): # Should be machine on
-        def Execute(self):
-            print("On")
-
-    class offState(State): # Should be machine off
-        def Execute(self):
-            print("Off")
-
-    #====================================================================#
-    # Transitions
-    #====================================================================#
-
-    class Transition( object ): # Transitioning between on and off states
-        def __init__(self, toState):
-            self.toState = toState
-
-        def Execute(self):
-            print("Transitioning states")
-    
+Regular Expressions:
+  Integer:    [0-9]+
+  Real:       [0-9]+ '.' [0-9]+
+  Identifier: [a-zA-Z_][a-zA-Z0-9_]*
+"""
+from enum import IntEnum
 
 #====================================================================#
-# States
+# States (as enumerations)
 #====================================================================#
+# Each value is a row index in TRANSITION_TABLE
+class State(IntEnum):
+    START         = 0
+    INTEGER       = 1
+    DECIMAL_POINT = 2
+    REAL          = 3
+    IDENTIFIER    = 4
+    ERROR         = 5
 
-    class myFSM(object):
-        def __init__(self, char):
-            self.char = char
-            self.states = {}
-            self.transitions = {}
-            self.curState = None # define what state FSM is in
-            self.trans = None   # define if FSM is switching states
-
-        def setState(self, stateName):
-            self.curState = self.states[stateName] # make sure state we pass in is inside of dictionary above then set it
-
-        def Transition(self, transName):
-            self.trans = self.transitions[transName] # make sure transition is inside of the library as well
-
-        def Execute(self):
-            if self.trans:
-                self.trans.Execute() # if transition stored in library, execute that transition
-                self.setState(self.trans.toState) # then set state to that transition
-                self.trans = None # reset the transition to none as we already set new state
-            self.curState.Execute()
-    
-    class Char(object):
-        def __init__(self):
-            self.FSM = myFSM(self) # create instance of FSM
-            self.onState = True # turning it on
+# Each value is a column index in TRANSITION_TABLE
+class CharClass(IntEnum):
+    DIGIT = 0
+    ALPHA = 1
+    UNDER = 2
+    DOT   = 3
+    OTHER = 4
 
 
-    # Another example from demo
-    # gives idea of having multiple states and what we could do with that
-    '''
-    class CleanDishes(State):
-        def __init__(self, FSM):
-            super(CleanDishes, self).__init__(FSM)
-        
-        def Enter(self):
-            print ("Doing the Dishes")
-            super(CleanDishes, self).Enter()
+# ====================================================================#
+# 2D Transition Table
+# ====================================================================#
+# TRANSITION_TABLE[state][char_class] -> next State
+#
+# To read the table, think: "I'm in this current state (row) and I'm this char
+# class type (col), let move to this next state based on (row)(col)"
+# (e.g. I am in the start state (first row) and my char is a digit class (first column),
+# then I move to integer state.)
 
-        def Execute(self):
-            print ("Cleaning Dishes")
-            if(self.startTime + self.timer <= time.perf_counter()):
-                if not( randint(1,3) % 2):
-                    self.FSM.ToTransition("toVacuum")
-                else:
-                    self.FSM.toTransition("toSleep")
-        
-        def Exit(self):
-            print("Finished cleaning dishes.")
-    '''
+#           DIGIT             ALPHA             UNDER             DOT                   OTHER
+TRANSITION_TABLE: list[list[State]] = [
+    # START
+    [ State.INTEGER,        State.IDENTIFIER, State.IDENTIFIER, State.ERROR,       State.ERROR ],
+    # INTEGER
+    [ State.INTEGER,        State.ERROR,      State.ERROR,      State.DECIMAL_POINT, State.ERROR ],
+    # DECIMAL_POINT
+    [ State.REAL,           State.ERROR,      State.ERROR,      State.ERROR,       State.ERROR ],
+    # REAL
+    [ State.REAL,           State.ERROR,      State.ERROR,      State.ERROR,       State.ERROR ],
+    # IDENTIFIER
+    [ State.IDENTIFIER,     State.IDENTIFIER, State.IDENTIFIER, State.ERROR,       State.ERROR ],
+    # ERROR
+    [ State.ERROR,          State.ERROR,      State.ERROR,      State.ERROR,       State.ERROR ],
+]
 
-    light = Char() # light is placeholder name used in the demo. Can change it to something more suitable
+# Accepting states and the token type they produce
+ACCEPTING_STATES: dict[State, str] = {
+    State.INTEGER:    "Integer",
+    State.REAL:       "Real",
+    State.IDENTIFIER: "Identifier",
+}
 
-    light.FSM.states["On"] = onState() # create instance of onState & store it inside state disctionary
-    light.FSM.states["Off"] = offState() # create instance of offState & store it inside state disctionary
-    light.FSM.transitions["toOn"] = Transition("On") # create instance of transition & store it inside transition dictionary
-    light.FSM.transitions["toOff"] = Transition("Off") # create instance of transition & store it inside transition dictionary
+#====================================================================#
+# FSM OOP
+#====================================================================#
+class myFSM:
+    def __init__(self):
+        """
+        Holds the current state of FSM and initializes to START state
+        """
+        self.curState: State = State.START
 
-    light.FSM.setState("On")
+    def execute(self, char_class: CharClass):
+        """
+        Executes the FSM and finds the current state based on previous state.
+        and character in the 2D-Table
 
-    for i in range(20):   # Demo of states changing with random. 
-        startTime = time.perf_counter() 
-        timeInterval = 1
-        while (startTime + timeInterval > time.perf_counter()):
-            pass
-        if randint(0,1):
-            if(light.onState):
-                light.FSM.Transition("toOff")
-                light.onState = False
-            else:
-                light.FSM.Transition("toOn")
-                light.onState = True
-        light.FSM.Execute()
+        :param char_class: Enumeration of character passed from classify function
+        """
+        self.curState = TRANSITION_TABLE[self.curState][char_class]
 
-    return ("To be classified", source)
 
-classify("some source")
+class Char:
+    def __init__(self):
+        """
+        Always creates a new instance of the FSM to guarantee tokens begin in START state
+        """
+        self.FSM = myFSM() # create instance of FSM
+
+
+def _char_class(char: str) -> CharClass:
+    """
+    Takes the character read from lexeme in classify function and assigns it
+    to a corresponding enumeration for index use in 2D-Table.
+
+    :param char: Single character from the lexeme string
+    :return: Enumeration corresponding to the character read from lexeme
+    """
+    if char.isdigit(): return CharClass.DIGIT
+    if char.isalpha(): return CharClass.ALPHA
+    if char == '_':    return CharClass.UNDER
+    if char == '.':    return CharClass.DOT
+    return CharClass.OTHER
+
+#====================================================================#
+# Classify (Starting point)
+#====================================================================#
+def classify(source: str) -> tuple[str, str]:
+    """
+    Starting point of FSM.py after having a lexeme source string passed from the lexer.
+    Uses a DFSM to determine token type of lexeme
+
+    :param source: Lexeme source string
+    :return: "Integer" | "Real" | "Identifier", lexeme
+    """
+    # Create new FSM instance
+    char_machine = Char()
+
+    for char in source:
+        # Using the FSM instance, we execute the FSM based on the current character's enumeration
+        # and the state which is stored in the char_machine.FSM class already. Repeat until EOS and
+        # we get our final state
+        char_machine.FSM.execute(_char_class(char))
+        if char_machine.FSM.curState == State.ERROR:
+            return "Unknown", source
+
+    # Based on the last state that the FSM was in, we check if it is an accepting state or unknown otherwise
+    token_type = ACCEPTING_STATES.get(char_machine.FSM.curState, "Unknown")
+    return token_type, source
+
