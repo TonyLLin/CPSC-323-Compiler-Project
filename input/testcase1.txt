@@ -1,0 +1,12 @@
+/* program 1: check if a number is positive */
+@
+@
+    integer x;
+@
+    read (x);
+    if (x < 0)
+        write (0);
+    otherwise
+        write (x);
+    fi
+@
