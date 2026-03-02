@@ -16,7 +16,7 @@ KEYWORDS = { "function", "integer", "real", "boolean", "if", "return",
              "read", "true", "false"}
 MULTI_CHAR_OPERATORS = {"<=", ">=", "==", "!="}
 SINGLE_CHAR_OPERATORS = {"+", "-", "*", "/", "=", "<", ">"}
-SEPARATORS = {"(", ")", ";", "{", "}"}
+SEPARATORS = {"(", ")", ";", "{", "}", ",", "@"}
 
 def _skip_comment(source: str, pos: int) -> int:
     """
@@ -166,7 +166,3 @@ def tokenize(source: str) -> list[tuple[str, str]]:
             break
         tokens.append(token)
     return tokens
-
-# Temporary test case
-for _ in tokenize("while (fahr <= upper) a = 23.00; /* this is a sample */"):
-    print(_)
