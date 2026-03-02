@@ -10,12 +10,21 @@ Class: CPSC 323-07
 Authors: Braedon Collett, Jackson Thompson, and Tony Lin
 """
 import os
+import sys
 from pathlib import Path
 from lexer import tokenize
 
+# Get the directory where the executable (or main.py) lives
+if getattr(sys, 'frozen', False):
+    # Running as a PyInstaller executable
+    BASE_DIR = Path(os.path.dirname(sys.executable))
+else:
+    # Running as a normal .py script
+    BASE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
+
 def main():
-    inPath = Path('input')
-    outPath = Path('output')
+    inPath = BASE_DIR / 'input'
+    outPath = BASE_DIR / 'output'
 
     is_empty = not any(inPath.iterdir())
     if is_empty:
