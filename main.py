@@ -1,37 +1,41 @@
 """
 main.py
 
+Reads a RAT26S source file, tokenizes it using the lexer, and writes
+the token/lexeme pairs to an output file.
+
 RAT26S Compiler Project
 
 Class: CPSC 323-07
 Authors: Braedon Collett, Jackson Thompson, and Tony Lin
-Description:
 """
-import sys
+import os
+from pathlib import Path
 from lexer import tokenize
+
 def main():
-    with open("output.txt", "w") as f:
-        class Tee:
-            def write(self, data):
-                sys.__stdout__.write(data)
-                f.write(data)
-            def flush(self):
-                sys.__stdout__.flush()
-                f.flush()
+    inPath = Path('input')
+    outPath = Path('output')
 
-        sys.stdout = Tee()
+    is_empty = not any(inPath.iterdir())
+    if is_empty:
+        print ("No test cases exist in the input directory. Add some to test the lexer.")
+    else:
+        for file in inPath.iterdir():
+            # Read text from input files
+            source = file.read_text()
 
-        #Example 1: 
-        print("Example 1")
-        for _ in tokenize("while (fahr <= upper) a = 23.00;"):
-            print(_)
-        print("Example 2")
-        for _ in tokenize("if (fahr <= upper) a = 23.00;"):
-            print(_)
-        print("Example 3")
-        for _ in tokenize("var_1 = 1"):
-            print(_)
-        pass
+            lines =(tokenize(source))
+
+            # Create output file names based on input file names
+            outName = file.name.removesuffix('.txt') + "_output.txt"
+
+            with open(os.path.join(outPath,outName), 'w') as f:
+                f.write(f"{'token':<15} {'lexeme'}\n{'-' * 30}\n")
+                for _ in lines:
+                    token_type, lexeme = _
+                    line = f"{token_type:<15} {lexeme}"
+                    f.write(f"{line}\n")
 
 if __name__ == '__main__':
     main()
