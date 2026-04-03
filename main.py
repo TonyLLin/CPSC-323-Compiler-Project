@@ -12,7 +12,7 @@ Authors: Braedon Collett, Jackson Thompson, and Tony Lin
 import os
 import sys
 from pathlib import Path
-from lexer import tokenize
+from rat_parser import Parser
 
 # Get the directory where the executable (or main.py) lives
 if getattr(sys, 'frozen', False):
@@ -31,20 +31,21 @@ def main():
         print ("No test cases exist in the input directory. Add some to test the lexer.")
     else:
         for file in inPath.iterdir():
-            # Read text from input files
-            source = file.read_text()
-
-            lines =(tokenize(source))
-
-            # Create output file names based on input file names
+            source  = file.read_text()
             outName = file.name.removesuffix('.txt') + "_output.txt"
-
-            with open(os.path.join(outPath,outName), 'w') as f:
-                f.write(f"{'token':<15} {'lexeme'}\n{'-' * 30}\n")
-                for _ in lines:
-                    token_type, lexeme = _
-                    line = f"{token_type:<15} {lexeme}"
-                    f.write(f"{line}\n")
+    
+            with open(outPath / outName, 'w') as f:
+                f.write(f"{'=' * 50}\n")
+                f.write(f"Source file: {file.name}\n")
+                f.write(f"{'=' * 50}\n\n")
+    
+                try:
+                    p = Parser(source, out=f)
+                    p.parse()
+                    f.write("\nParse completed successfully.\n")
+                except SyntaxError:
+                    # Error details already written by Parser._error()
+                    f.write("\nParse terminated due to syntax error.\n")
 
 if __name__ == '__main__':
     main()
