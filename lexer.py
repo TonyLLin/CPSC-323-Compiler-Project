@@ -14,7 +14,7 @@ from FSM import classify
 KEYWORDS = { "function", "integer", "real", "boolean", "if", "return",
              "print", "scan", "while", "otherwise", "fi", "write",
              "read", "true", "false"}
-MULTI_CHAR_OPERATORS = {"<=", ">=", "==", "!="}
+MULTI_CHAR_OPERATORS = {"<=", "=>", "==", "!="}
 SINGLE_CHAR_OPERATORS = {"+", "-", "*", "/", "=", "<", ">"}
 SEPARATORS = {"(", ")", ";", "{", "}", ",", "@"}
 
