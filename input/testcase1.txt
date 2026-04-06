@@ -1,18 +1,12 @@
 /* program 1: check if a number is positive */
 @
-integer a, b, c;
-real x;
 @
-a = 10;
-b = 20;
-c = a + b;
-x = 3.14;
-
-if (a < b)
-    print(c);
-fi
-
-while (c > 0)
-    c = c - 1;
-
-print(a);
+    integer x;
+@
+    read (x);
+    if (x < 0)
+        write (0);
+    otherwise
+        write (x);
+    fi
+@
