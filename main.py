@@ -43,9 +43,11 @@ def main():
                     p = Parser(source, out=f)
                     p.parse()
                     f.write("\nParse completed successfully.\n")
+                    print("Parse completed successfully.")
                 except SyntaxError:
                     # Error details already written by Parser._error()
                     f.write("\nParse terminated due to syntax error.\n")
+                    print("Parse terminated due to syntax error.")
 
 if __name__ == '__main__':
     main()
