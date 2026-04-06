@@ -7,26 +7,26 @@ Grammar (left-recursion removed, left-factored):
 
   <Rat26S>               -> @ <Opt Function Defs> @ <Opt Declaration List> @ <Statement List> @
 
-  <Opt Function Defs>    -> <Function Defs> | ε
+  <Opt Function Defs>    -> <Function Defs> | eps
   <Function Defs>        -> <Function> <Function Defs Prime>
-  <Function Defs Prime>  -> <Function Defs> | ε
+  <Function Defs Prime>  -> <Function Defs> | eps
 
   <Function>             -> function <Identifier> ( <Opt Parameter List> ) { <Opt Declaration List> <Statement List> }
-  <Opt Parameter List>   -> <Parameter List> | ε
+  <Opt Parameter List>   -> <Parameter List> | eps
   <Parameter List>       -> <Parameter> <Parameter List Prime>
-  <Parameter List Prime> -> , <Parameter List> | ε
+  <Parameter List Prime> -> , <Parameter List> | eps
   <Parameter>            -> <IDs> <Qualifier>
   <Qualifier>            -> integer | real | boolean
 
-  <Opt Declaration List> -> <Declaration List> | ε
+  <Opt Declaration List> -> <Declaration List> | eps
   <Declaration List>     -> <Declaration> ; <Declaration List Prime>
-  <Declaration List Prime> -> <Declaration List> | ε
+  <Declaration List Prime> -> <Declaration List> | eps
   <Declaration>          -> <Qualifier> <IDs>
   <IDs>                  -> <Identifier> <IDs Prime>
-  <IDs Prime>            -> , <IDs> | ε
+  <IDs Prime>            -> , <IDs> | eps
 
   <Statement List>       -> <Statement> <Statement List Prime>
-  <Statement List Prime> -> <Statement List> | ε
+  <Statement List Prime> -> <Statement List> | eps
   <Statement>            -> <Compound> | <Assign> | <If> | <Return> | <Print> | <Scan> | <While>
 
   <Compound>             -> { <Statement List> }
@@ -43,14 +43,14 @@ Grammar (left-recursion removed, left-factored):
   <Relop>                -> == | != | > | < | <= | =>
 
   <Expression>           -> <Term> <Expression Prime>
-  <Expression Prime>     -> + <Term> <Expression Prime> | - <Term> <Expression Prime> | ε
+  <Expression Prime>     -> + <Term> <Expression Prime> | - <Term> <Expression Prime> | eps
 
   <Term>                 -> <Factor> <Term Prime>
-  <Term Prime>           -> * <Factor> <Term Prime> | / <Factor> <Term Prime> | ε
+  <Term Prime>           -> * <Factor> <Term Prime> | / <Factor> <Term Prime> | eps
 
   <Factor>               -> - <Primary> | <Primary>
   <Primary>              -> <Identifier> <Primary Prime> | <Integer> | ( <Expression> ) | <Real> | true | false
-  <Primary Prime>        -> ( <IDs> ) | ε
+  <Primary Prime>        -> ( <IDs> ) | eps
 """
 
 from lexer import lexer
@@ -87,7 +87,7 @@ class Parser:
         self._out            = out
         self._token          = None    # current (token_type, lexeme) pair
         # Queue of deferred rule strings.  _term_prime and _expression_prime
-        # place their ε productions here so they appear in the output AFTER
+        # place their eps productions here so they appear in the output AFTER
         # the token that caused the parser to exit those non-terminals.
         self._pending_rules: list = []
         self._advance()                # prime the pump: load the first token
@@ -153,7 +153,7 @@ class Parser:
     def _match(self, expected_token: str, expected_lexeme: str = None):
         """
         Consume the current token if it matches, then advance.
-        Output order: token line first, then any deferred (ε) rules.
+        Output order: token line first, then any deferred (eps) rules.
         """
         tok, lex = self._token if self._token else ("EOF", "EOF")
 
@@ -166,7 +166,7 @@ class Parser:
             self._error(f"expected lexeme '{expected_lexeme}', got '{lex}'")
 
         self._print_token()      # token first
-        self._flush_pending()    # then any deferred ε rules
+        self._flush_pending()    # then any deferred eps rules
         self._advance()
 
     def _match_lexeme(self, expected_lexeme: str):
@@ -196,7 +196,7 @@ class Parser:
     def parse(self):
         """Parse the full source. Call this once after constructing the Parser."""
         self._rat26s()
-        self._flush_pending()   # emit any trailing deferred ε rules
+        self._flush_pending()   # emit any trailing deferred eps rules
         if self._token is not None:
             self._error("unexpected tokens after end of program")
 
@@ -217,13 +217,13 @@ class Parser:
 
     # ─── Function definitions ─────────────────────────────────────────────────
 
-    # <Opt Function Defs> -> <Function Defs> | ε
+    # <Opt Function Defs> -> <Function Defs> | eps
     def _opt_function_defs(self):
         if self._current_lexeme() == "function":
             self._print_rule("<Opt Function Defs> -> <Function Defs>")
             self._function_defs()
         else:
-            self._print_rule("<Opt Function Defs> -> ε")
+            self._print_rule("<Opt Function Defs> -> eps")
 
     # <Function Defs> -> <Function> <Function Defs Prime>
     def _function_defs(self):
@@ -231,13 +231,13 @@ class Parser:
         self._function()
         self._function_defs_prime()
 
-    # <Function Defs Prime> -> <Function Defs> | ε
+    # <Function Defs Prime> -> <Function Defs> | eps
     def _function_defs_prime(self):
         if self._current_lexeme() == "function":
             self._print_rule("<Function Defs Prime> -> <Function Defs>")
             self._function_defs()
         else:
-            self._print_rule("<Function Defs Prime> -> ε")
+            self._print_rule("<Function Defs Prime> -> eps")
 
     # <Function> -> function <Identifier> ( <Opt Parameter List> ) { <Opt Declaration List> <Statement List> }
     def _function(self):
@@ -253,13 +253,13 @@ class Parser:
         self._statement_list()
         self._match("Separator", "}")
 
-    # <Opt Parameter List> -> <Parameter List> | ε
+    # <Opt Parameter List> -> <Parameter List> | eps
     def _opt_parameter_list(self):
         if self._current_token() == "Identifier":
             self._print_rule("<Opt Parameter List> -> <Parameter List>")
             self._parameter_list()
         else:
-            self._print_rule("<Opt Parameter List> -> ε")
+            self._print_rule("<Opt Parameter List> -> eps")
 
     # <Parameter List> -> <Parameter> <Parameter List Prime>
     def _parameter_list(self):
@@ -267,14 +267,14 @@ class Parser:
         self._parameter()
         self._parameter_list_prime()
 
-    # <Parameter List Prime> -> , <Parameter List> | ε
+    # <Parameter List Prime> -> , <Parameter List> | eps
     def _parameter_list_prime(self):
         if self._current_lexeme() == ",":
             self._match_lexeme(",")
             self._print_rule("<Parameter List Prime> -> , <Parameter List>")
             self._parameter_list()
         else:
-            self._print_rule("<Parameter List Prime> -> ε")
+            self._print_rule("<Parameter List Prime> -> eps")
 
     # <Parameter> -> <IDs> <Qualifier>
     def _parameter(self):
@@ -292,13 +292,13 @@ class Parser:
 
     # ─── Declarations ─────────────────────────────────────────────────────────
 
-    # <Opt Declaration List> -> <Declaration List> | ε
+    # <Opt Declaration List> -> <Declaration List> | eps
     def _opt_declaration_list(self):
         if self._current_lexeme() in QUALIFIER_KEYWORDS:
             self._print_rule("<Opt Declaration List> -> <Declaration List>")
             self._declaration_list()
         else:
-            self._print_rule("<Opt Declaration List> -> ε")
+            self._print_rule("<Opt Declaration List> -> eps")
 
     # <Declaration List> -> <Declaration> ; <Declaration List Prime>
     def _declaration_list(self):
@@ -307,13 +307,13 @@ class Parser:
         self._match("Separator", ";")
         self._declaration_list_prime()
 
-    # <Declaration List Prime> -> <Declaration List> | ε
+    # <Declaration List Prime> -> <Declaration List> | eps
     def _declaration_list_prime(self):
         if self._current_lexeme() in QUALIFIER_KEYWORDS:
             self._print_rule("<Declaration List Prime> -> <Declaration List>")
             self._declaration_list()
         else:
-            self._print_rule("<Declaration List Prime> -> ε")
+            self._print_rule("<Declaration List Prime> -> eps")
 
     # <Declaration> -> <Qualifier> <IDs>
     def _declaration(self):
@@ -327,14 +327,14 @@ class Parser:
         self._print_rule("<IDs> -> <Identifier> <IDs Prime>")
         self._ids_prime()
 
-    # <IDs Prime> -> , <IDs> | ε
+    # <IDs Prime> -> , <IDs> | eps
     def _ids_prime(self):
         if self._current_lexeme() == ",":
             self._match_lexeme(",")
             self._print_rule("<IDs Prime> -> , <IDs>")
             self._ids()
         else:
-            self._print_rule("<IDs Prime> -> ε")
+            self._print_rule("<IDs Prime> -> eps")
 
     # ─── Statements ───────────────────────────────────────────────────────────
 
@@ -344,7 +344,7 @@ class Parser:
         self._statement()
         self._statement_list_prime()
 
-    # <Statement List Prime> -> <Statement List> | ε
+    # <Statement List Prime> -> <Statement List> | eps
     def _statement_list_prime(self):
         tok = self._current_token()
         lex = self._current_lexeme()
@@ -354,7 +354,7 @@ class Parser:
             self._print_rule("<Statement List Prime> -> <Statement List>")
             self._statement_list()
         else:
-            self._print_rule("<Statement List Prime> -> ε")
+            self._print_rule("<Statement List Prime> -> eps")
 
     # <Statement> -> dispatches to the appropriate sub-rule.
     # Each sub-method prints "<Statement> -> <X>" after consuming its first
@@ -490,22 +490,22 @@ class Parser:
         self._term()
         self._expression_prime()
 
-    # <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime> | ε
+    # <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime> | eps
     #
-    # ε case: defer the rule so it prints AFTER the next token upstream
+    # eps case: defer the rule so it prints AFTER the next token upstream
     # (the token that caused us to exit this non-terminal).
-    # Non-ε case: _match() prints the operator token and then flushes the
-    # pending queue (which holds the ε from _term_prime), producing the
-    # correct interleaving: Token → <Term Prime> ε → <Expression Prime> rule.
+    # Non-eps case: _match() prints the operator token and then flushes the
+    # pending queue (which holds the eps from _term_prime), producing the
+    # correct interleaving: Token → <Term Prime> eps → <Expression Prime> rule.
     def _expression_prime(self):
         lex = self._current_lexeme()
         if lex in {"+", "-"}:
-            self._match("Operator", lex)          # prints token, then flushes pending ε rules
+            self._match("Operator", lex)          # prints token, then flushes pending eps rules
             self._print_rule("<Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>")
             self._term()
             self._expression_prime()
         else:
-            self._defer_rule("<Expression Prime> -> ε")
+            self._defer_rule("<Expression Prime> -> eps")
 
     # <Term> -> <Factor> <Term Prime>
     def _term(self):
@@ -513,9 +513,9 @@ class Parser:
         self._factor()
         self._term_prime()
 
-    # <Term Prime> -> * <Factor> <Term Prime> | / <Factor> <Term Prime> | ε
+    # <Term Prime> -> * <Factor> <Term Prime> | / <Factor> <Term Prime> | eps
     #
-    # ε case: defer so it prints after the token that exits this non-terminal.
+    # eps case: defer so it prints after the token that exits this non-terminal.
     def _term_prime(self):
         lex = self._current_lexeme()
         if lex in {"*", "/"}:
@@ -524,7 +524,7 @@ class Parser:
             self._factor()
             self._term_prime()
         else:
-            self._defer_rule("<Term Prime> -> ε")
+            self._defer_rule("<Term Prime> -> eps")
 
     # ─── Factor / Primary ─────────────────────────────────────────────────────
     #

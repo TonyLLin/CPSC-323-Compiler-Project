@@ -4,7 +4,7 @@ Source file: testcase2.txt
 
 Token: Separator       Lexeme: @
   <Rat26S> -> @ <Opt Function Defs> @ <Opt Declaration List> @ <Statement List> @
-  <Opt Function Defs> -> ε
+  <Opt Function Defs> -> eps
 Token: Separator       Lexeme: @
   <Opt Declaration List> -> <Declaration List>
   <Declaration List> -> <Declaration> ; <Declaration List Prime>
@@ -21,9 +21,9 @@ Token: Separator       Lexeme: ,
   <IDs Prime> -> , <IDs>
 Token: Identifier      Lexeme: total
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: ;
-  <Declaration List Prime> -> ε
+  <Declaration List Prime> -> eps
 Token: Separator       Lexeme: @
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: read
@@ -32,7 +32,7 @@ Token: Keyword         Lexeme: read
 Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: n
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: ;
   <Statement List Prime> -> <Statement List>
@@ -46,8 +46,8 @@ Token: Operator        Lexeme: =
 Token: Integer         Lexeme: 0
   <Factor> -> <Integer>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Identifier      Lexeme: i
@@ -59,8 +59,8 @@ Token: Operator        Lexeme: =
 Token: Integer         Lexeme: 1
   <Factor> -> <Integer>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: while
@@ -73,16 +73,16 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: i
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: <=
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Identifier      Lexeme: n
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: {
   <Statement> -> <Compound>
   <Compound> -> { <Statement List> }
@@ -96,14 +96,14 @@ Token: Operator        Lexeme: =
 Token: Identifier      Lexeme: total
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: +
-  <Term Prime> -> ε
+  <Term Prime> -> eps
   <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Identifier      Lexeme: i
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Identifier      Lexeme: i
@@ -115,15 +115,15 @@ Token: Operator        Lexeme: =
 Token: Identifier      Lexeme: i
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: +
-  <Term Prime> -> ε
+  <Term Prime> -> eps
   <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Integer         Lexeme: 1
   <Factor> -> <Integer>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
-  <Statement List Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: }
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
@@ -136,10 +136,10 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: total
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: ;
-  <Statement List Prime> -> ε
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: @
 
 Parse completed successfully.

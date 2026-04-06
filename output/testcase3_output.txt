@@ -15,7 +15,7 @@ Token: Separator       Lexeme: (
   <Parameter> -> <IDs> <Qualifier>
 Token: Identifier      Lexeme: w
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
 Token: Separator       Lexeme: ,
@@ -24,13 +24,13 @@ Token: Separator       Lexeme: ,
   <Parameter> -> <IDs> <Qualifier>
 Token: Identifier      Lexeme: h
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
-  <Parameter List Prime> -> ε
+  <Parameter List Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: {
-  <Opt Declaration List> -> ε
+  <Opt Declaration List> -> eps
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: return
   <Statement> -> <Return>
@@ -45,9 +45,9 @@ Token: Operator        Lexeme: *
 Token: Identifier      Lexeme: h
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
-  <Statement List Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: }
   <Function Defs Prime> -> <Function Defs>
   <Function Defs> -> <Function> <Function Defs Prime>
@@ -60,7 +60,7 @@ Token: Separator       Lexeme: (
   <Parameter> -> <IDs> <Qualifier>
 Token: Identifier      Lexeme: w
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
 Token: Separator       Lexeme: ,
@@ -69,13 +69,13 @@ Token: Separator       Lexeme: ,
   <Parameter> -> <IDs> <Qualifier>
 Token: Identifier      Lexeme: h
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
-  <Parameter List Prime> -> ε
+  <Parameter List Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: {
-  <Opt Declaration List> -> ε
+  <Opt Declaration List> -> eps
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: return
   <Statement> -> <Return>
@@ -90,7 +90,7 @@ Token: Operator        Lexeme: *
 Token: Identifier      Lexeme: w
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: +
-  <Term Prime> -> ε
+  <Term Prime> -> eps
   <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Integer         Lexeme: 2
@@ -100,11 +100,11 @@ Token: Operator        Lexeme: *
 Token: Identifier      Lexeme: h
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
-  <Statement List Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: }
-  <Function Defs Prime> -> ε
+  <Function Defs Prime> -> eps
 Token: Separator       Lexeme: @
   <Opt Declaration List> -> <Declaration List>
   <Declaration List> -> <Declaration> ; <Declaration List Prime>
@@ -121,7 +121,7 @@ Token: Separator       Lexeme: ,
   <IDs Prime> -> , <IDs>
 Token: Identifier      Lexeme: choice
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: ;
   <Declaration List Prime> -> <Declaration List>
   <Declaration List> -> <Declaration> ; <Declaration List Prime>
@@ -130,9 +130,9 @@ Token: Keyword         Lexeme: boolean
   <Qualifier> -> integer | real | boolean
 Token: Identifier      Lexeme: running
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: ;
-  <Declaration List Prime> -> ε
+  <Declaration List Prime> -> eps
 Token: Separator       Lexeme: @
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Identifier      Lexeme: running
@@ -144,8 +144,8 @@ Token: Operator        Lexeme: =
 Token: Keyword         Lexeme: true
   <Factor> -> <Boolean>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: read
@@ -154,7 +154,7 @@ Token: Keyword         Lexeme: read
 Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: width
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: ;
   <Statement List Prime> -> <Statement List>
@@ -165,7 +165,7 @@ Token: Keyword         Lexeme: read
 Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: height
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: ;
   <Statement List Prime> -> <Statement List>
@@ -180,16 +180,16 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: running
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: ==
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Keyword         Lexeme: true
   <Factor> -> <Boolean>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: {
   <Statement> -> <Compound>
   <Compound> -> { <Statement List> }
@@ -200,7 +200,7 @@ Token: Keyword         Lexeme: read
 Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: choice
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: ;
   <Statement List Prime> -> <Statement List>
@@ -215,16 +215,16 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: choice
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: ==
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Integer         Lexeme: 1
   <Factor> -> <Integer>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Keyword         Lexeme: write
   <Statement> -> <Print>
   <Print> -> write ( <Expression> ) ;
@@ -240,11 +240,11 @@ Token: Separator       Lexeme: ,
   <IDs Prime> -> , <IDs>
 Token: Identifier      Lexeme: height
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: ;
   <If Prime> -> fi
 Token: Keyword         Lexeme: fi
@@ -260,16 +260,16 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: choice
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: ==
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Integer         Lexeme: 2
   <Factor> -> <Integer>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Keyword         Lexeme: write
   <Statement> -> <Print>
   <Print> -> write ( <Expression> ) ;
@@ -285,11 +285,11 @@ Token: Separator       Lexeme: ,
   <IDs Prime> -> , <IDs>
 Token: Identifier      Lexeme: height
   <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> ε
+  <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: ;
   <If Prime> -> fi
 Token: Keyword         Lexeme: fi
@@ -305,16 +305,16 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: choice
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: ==
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
 Token: Integer         Lexeme: 3
   <Factor> -> <Integer>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Identifier      Lexeme: running
   <Statement> -> <Assign>
   <Assign> -> <Identifier> = <Expression> ;
@@ -324,11 +324,11 @@ Token: Operator        Lexeme: =
 Token: Keyword         Lexeme: false
   <Factor> -> <Boolean>
 Token: Separator       Lexeme: ;
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
   <If Prime> -> fi
 Token: Keyword         Lexeme: fi
-  <Statement List Prime> -> ε
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: }
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
@@ -341,10 +341,10 @@ Token: Separator       Lexeme: (
 Token: Identifier      Lexeme: running
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: )
-  <Term Prime> -> ε
-  <Expression Prime> -> ε
+  <Term Prime> -> eps
+  <Expression Prime> -> eps
 Token: Separator       Lexeme: ;
-  <Statement List Prime> -> ε
+  <Statement List Prime> -> eps
 Token: Separator       Lexeme: @
 
 Parse completed successfully.
