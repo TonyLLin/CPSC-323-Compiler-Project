@@ -1,3 +1,5 @@
+from lexer import *
+from rat_parser import *
 import re
 
 # --- SYMBOL TABLE ---
@@ -53,12 +55,12 @@ class CodeGenerator:
 
 # Parser goes here
 
-# source_code = parser(lexer_output)
+# source_code = inputInstruction
 
 # Execution
 
 try:
-    lexer = Lexer(source_code)
+    lexer = tokenize(source_code)
     parser = Parser(lexer)
     parser.parse()
     
