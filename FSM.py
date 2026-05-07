@@ -9,6 +9,7 @@ Regular Expressions:
   Identifier: [a-zA-Z_][a-zA-Z0-9_]*
 """
 from enum import IntEnum
+from typing import List, Dict  # Add this import
 
 #====================================================================#
 # States (as enumerations)
@@ -42,7 +43,7 @@ class CharClass(IntEnum):
 # then I move to integer state.)
 
 #           DIGIT             ALPHA             UNDER             DOT                   OTHER
-TRANSITION_TABLE: list[list[State]] = [
+TRANSITION_TABLE: List[List[State]] = [
     # START
     [ State.INTEGER,        State.IDENTIFIER, State.IDENTIFIER, State.ERROR,       State.ERROR ],
     # INTEGER
@@ -58,7 +59,7 @@ TRANSITION_TABLE: list[list[State]] = [
 ]
 
 # Accepting states and the token type they produce
-ACCEPTING_STATES: dict[State, str] = {
+ACCEPTING_STATES: Dict[State, str] = {
     State.INTEGER:    "Integer",
     State.REAL:       "Real",
     State.IDENTIFIER: "Identifier",

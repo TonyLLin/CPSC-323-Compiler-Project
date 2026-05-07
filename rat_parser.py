@@ -132,11 +132,12 @@ class Parser:
         Fetch the next token from the lexer and store it in self._token.
         Updates the approximate line counter as we move through the source.
         """
-        prev_pos = self._pos
-        self._token, self._pos = lexer(self._source, self._pos)
-
-        skipped = self._source[prev_pos:self._pos - (len(self._token[1]) if self._token else 0)]
-        self._line += skipped.count("\n")
+        # self._source is your list of tokens: [('Separator', '@'), ...]
+        if self._pos < len(self._source):
+            self._token = self._source[self._pos]
+            self._pos += 1
+        else:
+            self._token = None # End of input
 
     def _current_token(self) -> str:
         """Return the token type of the current lookahead, or '' at EOF."""

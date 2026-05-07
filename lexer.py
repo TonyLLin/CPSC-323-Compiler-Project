@@ -131,8 +131,11 @@ def lexer(source: str, pos: int) -> tuple[tuple[str, str] | None, int]:
     :param pos: Current index of source string
     :return: (Token, pos) pair
     """
+
     while pos < len(source):
         # Skip whitespace
+        print("spacer")
+        print(source[pos])
         if source[pos].isspace():
             pos += 1
             continue
@@ -158,6 +161,7 @@ def tokenize(source: str) -> list[tuple[str, str]]:
     # Stores all token, lexeme pair(s)
     tokens = []
     pos = 0
+    print(source)
 
     # Tokenize string by passing current index (pos) and source string into the lexer
     while pos < len(source):
