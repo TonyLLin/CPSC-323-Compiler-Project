@@ -11,57 +11,16 @@ Token: Separator       Lexeme: @
   <Declaration> -> <Qualifier> <IDs>
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
-Token: Identifier      Lexeme: n
-  <IDs> -> <Identifier> <IDs Prime>
-Token: Separator       Lexeme: ,
-  <IDs Prime> -> , <IDs>
 Token: Identifier      Lexeme: i
   <IDs> -> <Identifier> <IDs Prime>
 Token: Separator       Lexeme: ,
   <IDs Prime> -> , <IDs>
-Token: Identifier      Lexeme: total
+Token: Identifier      Lexeme: max
   <IDs> -> <Identifier> <IDs Prime>
   <IDs Prime> -> eps
 Token: Separator       Lexeme: ;
   <Declaration List Prime> -> eps
 Token: Separator       Lexeme: @
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Keyword         Lexeme: read
-  <Statement> -> <Scan>
-  <Scan> -> read ( <IDs> ) ;
-Token: Separator       Lexeme: (
-Token: Identifier      Lexeme: n
-  <IDs> -> <Identifier> <IDs Prime>
-  <IDs Prime> -> eps
-Token: Separator       Lexeme: )
-Token: Separator       Lexeme: ;
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: total
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Integer         Lexeme: 0
-  <Factor> -> <Integer>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: i
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Integer         Lexeme: 1
-  <Factor> -> <Integer>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: while
   <Statement> -> <While>
@@ -72,40 +31,17 @@ Token: Separator       Lexeme: (
   <Term> -> <Factor> <Term Prime>
 Token: Identifier      Lexeme: i
   <Factor> -> <Identifier>
-Token: Operator        Lexeme: <=
+Token: Operator        Lexeme: <
   <Term Prime> -> eps
   <Expression Prime> -> eps
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: n
+Token: Identifier      Lexeme: max
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: )
   <Term Prime> -> eps
   <Expression Prime> -> eps
-Token: Separator       Lexeme: {
-  <Statement> -> <Compound>
-  <Compound> -> { <Statement List> }
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: total
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: total
-  <Factor> -> <Identifier>
-Token: Operator        Lexeme: +
-  <Term Prime> -> eps
-  <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: i
-  <Factor> -> <Identifier>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
 Token: Identifier      Lexeme: i
   <Statement> -> <Assign>
   <Assign> -> <Identifier> = <Expression> ;
@@ -124,52 +60,23 @@ Token: Separator       Lexeme: ;
   <Term Prime> -> eps
   <Expression Prime> -> eps
   <Statement List Prime> -> eps
-Token: Separator       Lexeme: }
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Keyword         Lexeme: write
-  <Statement> -> <Print>
-  <Print> -> write ( <Expression> ) ;
-Token: Separator       Lexeme: (
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: total
-  <Factor> -> <Identifier>
-Token: Separator       Lexeme: )
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-Token: Separator       Lexeme: ;
-  <Statement List Prime> -> eps
 Token: Separator       Lexeme: @
 
 Assembly Code Listing
-1     SIN
-2     POPM   10000
-3     PUSHI   0
-4     POPM   10002
-5     PUSHI   1
-6     POPM   10001
-7     LABEL
-8     PUSHM   10001
-9     PUSHM   10000
-10    LEQ
-11    JMPZ   21
-12    PUSHM   10002
-13    PUSHM   10001
-14    A
-15    POPM   10002
-16    PUSHM   10001
-17    PUSHI   1
-18    A
-19    POPM   10001
-20    JMP   7
-21    PUSHM   10002
-22    SOUT
+1     LABEL   nil
+2     PUSHM   10000
+3     PUSHM   10001
+4     LES   nil
+5     JMPZ   11
+6     PUSHM   10000
+7     PUSHI   1
+8     A   nil
+9     POPM   10000
+10    JMP   1
 
 Symbol Table
 Identifier      MemoryLocation  Type      
-n               10000           integer   
-i               10001           integer   
-total           10002           integer   
+i               10000           integer   
+max             10001           integer   
 
 Parse completed successfully.

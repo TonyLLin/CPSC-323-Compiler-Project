@@ -1,15 +1,7 @@
 /* program 2: sum all integers from 1 up to n */
 @
 @
-integer n, i, total;
+integer i, max;
 @
-read (n);
-total = 0;
-i = 1;
-while (i <= n)
-{
-    total = total + i;
-    i = i + 1;
-}
-write (total);
+while ( i < max) i = i + 1;
 @

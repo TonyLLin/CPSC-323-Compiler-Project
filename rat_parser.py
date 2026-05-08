@@ -457,7 +457,7 @@ class Parser:
         self._match("Separator", ")")
 
         # JMPZ placeholder: exit address filled in by _if_prime
-        jmpz_idx = self.cg.gen_instr("JMPZ")
+        jmpz_idx = self.cg.gen_instr("JMPZ", "nil")
 
         self._statement()
         self._if_prime(jmpz_idx)
@@ -470,19 +470,19 @@ class Parser:
 
             # JMP to skip over the else body; then patch the JMPZ to
             # land at the start of the else body (next instruction after JMP)
-            jmp_idx = self.cg.gen_instr("JMP")
+            jmp_idx = self.cg.gen_instr("JMP", "nil")
             self.cg.backpatch(jmpz_idx, self.cg.get_next_index())
 
             self._statement()
 
             # patch the JMP to land after the else body; emit LABEL
             self.cg.backpatch(jmp_idx, self.cg.get_next_index())
-            self.cg.gen_instr("LABEL")
+            self.cg.gen_instr("LABEL", "nil")
         else:
             self._print_rule("<If Prime> -> fi")
             # no else, patch JMPZ to land right after the then body
             self.cg.backpatch(jmpz_idx, self.cg.get_next_index())
-            self.cg.gen_instr("LABEL")
+            self.cg.gen_instr("LABEL", "nil")
 
         self._match("Keyword", "fi")
 
@@ -514,7 +514,7 @@ class Parser:
         self._match("Separator", ";")
 
         # pop TOS and send to standard output
-        self.cg.gen_instr("SOUT")
+        self.cg.gen_instr("SOUT", "nil")
 
     # <Scan> -> read ( <IDs> ) ;
     def _scan_stmt(self):
@@ -546,7 +546,7 @@ class Parser:
             self._semantic_error(str(e))
 
         # read one value from stdin and store it at this variable's address
-        self.cg.gen_instr("SIN")
+        self.cg.gen_instr("SIN", "nil")
         self.cg.gen_instr("POPM", addr)
 
         # handle comma-separated list recursively
@@ -564,14 +564,14 @@ class Parser:
         self._print_rule("<While> -> while ( <Condition> ) <Statement>")
 
         # record the top-of-loop address, emit LABEL
-        top = self.cg.gen_instr("LABEL")
+        top = self.cg.gen_instr("LABEL", "nil")
 
         self._match("Separator", "(")
         self._condition()
         self._match("Separator", ")")
 
         # emit JMPZ as placeholder; address filled in after body
-        jmpz_idx = self.cg.gen_instr("JMPZ")
+        jmpz_idx = self.cg.gen_instr("JMPZ", "nil")
 
         self._statement()
 
@@ -588,7 +588,7 @@ class Parser:
         op = self._relop()          # returns the instruction mnemonic
         self._expression()
         # both operands are now on the stack — emit the comparison
-        self.cg.gen_instr(op)
+        self.cg.gen_instr(op, "nil")
 
     # <Relop> -> == | != | > | < | <= | =>
     def _relop(self) -> str:
@@ -619,7 +619,7 @@ class Parser:
             self._print_rule("<Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>")
             self._term()
             # both operands now on stack. emit arithmetic instruction
-            self.cg.gen_instr("A" if lex == "+" else "S")
+            self.cg.gen_instr("A" if lex == "+" else "S", "nil")
             self._expression_prime()
         else:
             self._defer_rule("<Expression Prime> -> eps")
@@ -638,7 +638,7 @@ class Parser:
             self._print_rule("<Term Prime> -> * <Factor> <Term Prime> | / <Factor> <Term Prime>")
             self._factor()
             # both operands now on stack. emit multiply or divide
-            self.cg.gen_instr("M" if lex == "*" else "D")
+            self.cg.gen_instr("M" if lex == "*" else "D", "nil")
             self._term_prime()
         else:
             self._defer_rule("<Term Prime> -> eps")

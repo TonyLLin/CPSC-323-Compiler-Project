@@ -11,66 +11,32 @@ Token: Separator       Lexeme: @
   <Declaration> -> <Qualifier> <IDs>
 Token: Keyword         Lexeme: integer
   <Qualifier> -> integer | real | boolean
-Token: Identifier      Lexeme: i
-  <IDs> -> <Identifier> <IDs Prime>
-Token: Separator       Lexeme: ,
-  <IDs Prime> -> , <IDs>
-Token: Identifier      Lexeme: max
-  <IDs> -> <Identifier> <IDs Prime>
-Token: Separator       Lexeme: ,
-  <IDs Prime> -> , <IDs>
-Token: Identifier      Lexeme: sum
+Token: Identifier      Lexeme: x
   <IDs> -> <Identifier> <IDs Prime>
   <IDs Prime> -> eps
 Token: Separator       Lexeme: ;
   <Declaration List Prime> -> eps
 Token: Separator       Lexeme: @
   <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: sum
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Integer         Lexeme: 0
-  <Factor> -> <Integer>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: i
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Integer         Lexeme: 1
-  <Factor> -> <Integer>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: read
   <Statement> -> <Scan>
   <Scan> -> read ( <IDs> ) ;
 Token: Separator       Lexeme: (
-Token: Identifier      Lexeme: max
+Token: Identifier      Lexeme: x
   <IDs> -> <Identifier> <IDs Prime>
   <IDs Prime> -> eps
 Token: Separator       Lexeme: )
 Token: Separator       Lexeme: ;
   <Statement List Prime> -> <Statement List>
   <Statement List> -> <Statement> <Statement List Prime>
-Token: Keyword         Lexeme: while
-  <Statement> -> <While>
-  <While> -> while ( <Condition> ) <Statement>
+Token: Keyword         Lexeme: if
+  <Statement> -> <If>
+  <If> -> if ( <Condition> ) <Statement> <If Prime>
 Token: Separator       Lexeme: (
   <Condition> -> <Expression> <Relop> <Expression>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: i
+Token: Identifier      Lexeme: x
   <Factor> -> <Identifier>
 Token: Operator        Lexeme: <
   <Term Prime> -> eps
@@ -78,106 +44,57 @@ Token: Operator        Lexeme: <
   <Relop> -> == | != | > | < | <= | =>
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: max
-  <Factor> -> <Identifier>
+Token: Integer         Lexeme: 0
+  <Factor> -> <Integer>
 Token: Separator       Lexeme: )
   <Term Prime> -> eps
   <Expression Prime> -> eps
-Token: Separator       Lexeme: {
-  <Statement> -> <Compound>
-  <Compound> -> { <Statement List> }
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: sum
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: sum
-  <Factor> -> <Identifier>
-Token: Operator        Lexeme: +
-  <Term Prime> -> eps
-  <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: i
-  <Factor> -> <Identifier>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
-Token: Identifier      Lexeme: i
-  <Statement> -> <Assign>
-  <Assign> -> <Identifier> = <Expression> ;
-Token: Operator        Lexeme: =
-  <Expression> -> <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: i
-  <Factor> -> <Identifier>
-Token: Operator        Lexeme: +
-  <Term Prime> -> eps
-  <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
-  <Term> -> <Factor> <Term Prime>
-Token: Integer         Lexeme: 1
-  <Factor> -> <Integer>
-Token: Separator       Lexeme: ;
-  <Term Prime> -> eps
-  <Expression Prime> -> eps
-  <Statement List Prime> -> eps
-Token: Separator       Lexeme: }
-  <Statement List Prime> -> <Statement List>
-  <Statement List> -> <Statement> <Statement List Prime>
 Token: Keyword         Lexeme: write
   <Statement> -> <Print>
   <Print> -> write ( <Expression> ) ;
 Token: Separator       Lexeme: (
   <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: sum
-  <Factor> -> <Identifier>
-Token: Operator        Lexeme: +
+Token: Integer         Lexeme: 0
+  <Factor> -> <Integer>
+Token: Separator       Lexeme: )
   <Term Prime> -> eps
-  <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>
+  <Expression Prime> -> eps
+Token: Separator       Lexeme: ;
+Token: Keyword         Lexeme: otherwise
+  <If Prime> -> otherwise <Statement> fi
+Token: Keyword         Lexeme: write
+  <Statement> -> <Print>
+  <Print> -> write ( <Expression> ) ;
+Token: Separator       Lexeme: (
+  <Expression> -> <Term> <Expression Prime>
   <Term> -> <Factor> <Term Prime>
-Token: Identifier      Lexeme: max
+Token: Identifier      Lexeme: x
   <Factor> -> <Identifier>
 Token: Separator       Lexeme: )
   <Term Prime> -> eps
   <Expression Prime> -> eps
 Token: Separator       Lexeme: ;
+Token: Keyword         Lexeme: fi
   <Statement List Prime> -> eps
 Token: Separator       Lexeme: @
 
 Assembly Code Listing
-1     PUSHI   0
-2     POPM   10002
-3     PUSHI   1
-4     POPM   10000
-5     SIN
-6     POPM   10001
-7     LABEL
-8     PUSHM   10000
-9     PUSHM   10001
-10    LES
-11    JMPZ   21
-12    PUSHM   10002
-13    PUSHM   10000
-14    A
-15    POPM   10002
-16    PUSHM   10000
-17    PUSHI   1
-18    A
-19    POPM   10000
-20    JMP   7
-21    PUSHM   10002
-22    PUSHM   10001
-23    A
-24    SOUT
+1     SIN   nil
+2     POPM   10000
+3     PUSHM   10000
+4     PUSHI   0
+5     LES   nil
+6     JMPZ   10
+7     PUSHI   0
+8     SOUT   nil
+9     JMP   12
+10    PUSHM   10000
+11    SOUT   nil
+12    LABEL   nil
 
 Symbol Table
 Identifier      MemoryLocation  Type      
-i               10000           integer   
-max             10001           integer   
-sum             10002           integer   
+x               10000           integer   
 
 Parse completed successfully.
