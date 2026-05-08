@@ -142,4 +142,34 @@ Token: Separator       Lexeme: ;
   <Statement List Prime> -> eps
 Token: Separator       Lexeme: @
 
+Assembly Code Listing
+1     SIN
+2     POPM   10000
+3     PUSHI   0
+4     POPM   10002
+5     PUSHI   1
+6     POPM   10001
+7     LABEL
+8     PUSHM   10001
+9     PUSHM   10000
+10    LEQ
+11    JMPZ   21
+12    PUSHM   10002
+13    PUSHM   10001
+14    A
+15    POPM   10002
+16    PUSHM   10001
+17    PUSHI   1
+18    A
+19    POPM   10001
+20    JMP   7
+21    PUSHM   10002
+22    SOUT
+
+Symbol Table
+Identifier      MemoryLocation  Type      
+n               10000           integer   
+i               10001           integer   
+total           10002           integer   
+
 Parse completed successfully.

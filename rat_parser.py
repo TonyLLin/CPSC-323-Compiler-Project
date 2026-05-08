@@ -54,6 +54,7 @@ Grammar (left-recursion removed, left-factored):
 """
 
 from lexer import lexer
+from FinalAssembler import CodeGenerator, SymbolTable, SemanticError
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Toggle: set to True to print each production rule as it is applied
@@ -64,7 +65,8 @@ PRINT_RULES: bool = True
 # Keywords that can begin a statement (used for synchronization / FIRST sets)
 # ─────────────────────────────────────────────────────────────────────────────
 STATEMENT_FIRST_KEYWORDS = {"if", "return", "write", "read", "while"}
-QUALIFIER_KEYWORDS        = {"integer", "real", "boolean"}
+# "real" is excluded — Simplified RAT26S only permits integer and boolean
+QUALIFIER_KEYWORDS        = {"integer", "boolean"}
 
 
 class Parser:
@@ -90,6 +92,13 @@ class Parser:
         # place their eps productions here so they appear in the output AFTER
         # the token that caused the parser to exit those non-terminals.
         self._pending_rules: list = []
+
+        # Attach the symbol table and code generator:
+        # Every grammar method that needs to record a declaration or emit an
+        # instruction will reach them through self.st and self.cg.
+        self.st = SymbolTable()    # tracks declared identifiers
+        self.cg = CodeGenerator()  # accumulates virtual-machine instructions
+
         self._advance()                # prime the pump: load the first token
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -132,12 +141,11 @@ class Parser:
         Fetch the next token from the lexer and store it in self._token.
         Updates the approximate line counter as we move through the source.
         """
-        # self._source is your list of tokens: [('Separator', '@'), ...]
-        if self._pos < len(self._source):
-            self._token = self._source[self._pos]
-            self._pos += 1
-        else:
-            self._token = None # End of input
+        prev_pos = self._pos
+        self._token, self._pos = lexer(self._source, self._pos)
+
+        skipped = self._source[prev_pos:self._pos - (len(self._token[1]) if self._token else 0)]
+        self._line += skipped.count("\n")
 
     def _current_token(self) -> str:
         """Return the token type of the current lookahead, or '' at EOF."""
@@ -190,6 +198,18 @@ class Parser:
         self._write(err)
         raise SyntaxError(err)
 
+    def _semantic_error(self, message: str):
+        """Raise a SemanticError with location context"""
+        tok = self._current_token()
+        lex = self._current_lexeme()
+        err = (f"\n*** Semantic Error ***\n"
+               f"  Line   : {self._line}\n"
+               f"  Token  : {tok}\n"
+               f"  Lexeme : {lex}\n"
+               f"  Detail : {message}\n")
+        self._write(err)
+        raise SemanticError(err)
+
     # ─────────────────────────────────────────────────────────────────────────
     # Entry point
     # ─────────────────────────────────────────────────────────────────────────
@@ -221,8 +241,8 @@ class Parser:
     # <Opt Function Defs> -> <Function Defs> | eps
     def _opt_function_defs(self):
         if self._current_lexeme() == "function":
-            self._print_rule("<Opt Function Defs> -> <Function Defs>")
-            self._function_defs()
+            # Simplified RAT26S does not allow function definitions
+            self._error("Simplified RAT26S does not support function definitions.")
         else:
             self._print_rule("<Opt Function Defs> -> eps")
 
@@ -319,21 +339,38 @@ class Parser:
     # <Declaration> -> <Qualifier> <IDs>
     def _declaration(self):
         self._print_rule("<Declaration> -> <Qualifier> <IDs>")
+        var_type = self._current_lexeme()   # capture the type BEFORE _qualifier consumes it
         self._qualifier()
-        self._ids()
+        self._ids(declared_type=var_type)   # pass the type down so _ids can insert into ST
 
     # <IDs> -> <Identifier> <IDs Prime>
-    def _ids(self):
+    def _ids(self, declared_type: str = None):
+        """
+        :param declared_type: When called from a declaration context, the type
+                              keyword ('integer' or 'boolean') so we can insert
+                              each identifier into the symbol table.
+                              Pass None (default) when IDs appear in non-
+                              declaration contexts (e.g. read statement).
+        """
+        lex = self._current_lexeme()        # capture the identifier name
         self._match("Identifier")
         self._print_rule("<IDs> -> <Identifier> <IDs Prime>")
-        self._ids_prime()
+
+        # Insert into symbol table when inside a declaration
+        if declared_type is not None:
+            try:
+                self.st.insert(lex, declared_type)
+            except SemanticError as e:
+                self._semantic_error(str(e))
+
+        self._ids_prime(declared_type=declared_type)
 
     # <IDs Prime> -> , <IDs> | eps
-    def _ids_prime(self):
+    def _ids_prime(self, declared_type: str = None):
         if self._current_lexeme() == ",":
             self._match_lexeme(",")
             self._print_rule("<IDs Prime> -> , <IDs>")
-            self._ids()
+            self._ids(declared_type=declared_type)
         else:
             self._print_rule("<IDs Prime> -> eps")
 
@@ -391,11 +428,23 @@ class Parser:
 
     # <Assign> -> <Identifier> = <Expression> ;
     def _assign(self):
+        lex = self._current_lexeme()        # capture identifier before consuming it
         self._match("Identifier")
         self._print_rule("<Statement> -> <Assign>")
         self._print_rule("<Assign> -> <Identifier> = <Expression> ;")
+
+        # Validate that the LHS identifier has been declared
+        try:
+            addr = self.st.get_address(lex)
+        except SemanticError as e:
+            self._semantic_error(str(e))
+
         self._match("Operator", "=")
         self._expression()
+
+        # Expression result is on TOS, so store it at the variable's address
+        self.cg.gen_instr("POPM", addr)
+
         self._match("Separator", ";")
 
     # <If> -> if ( <Condition> ) <Statement> <If Prime>
@@ -406,17 +455,35 @@ class Parser:
         self._match("Separator", "(")
         self._condition()
         self._match("Separator", ")")
+
+        # JMPZ placeholder: exit address filled in by _if_prime
+        jmpz_idx = self.cg.gen_instr("JMPZ")
+
         self._statement()
-        self._if_prime()
+        self._if_prime(jmpz_idx)
 
     # <If Prime> -> otherwise <Statement> fi | fi
-    def _if_prime(self):
+    def _if_prime(self, jmpz_idx: int):
         if self._current_lexeme() == "otherwise":
             self._match("Keyword", "otherwise")
             self._print_rule("<If Prime> -> otherwise <Statement> fi")
+
+            # JMP to skip over the else body; then patch the JMPZ to
+            # land at the start of the else body (next instruction after JMP)
+            jmp_idx = self.cg.gen_instr("JMP")
+            self.cg.backpatch(jmpz_idx, self.cg.get_next_index())
+
             self._statement()
+
+            # patch the JMP to land after the else body; emit LABEL
+            self.cg.backpatch(jmp_idx, self.cg.get_next_index())
+            self.cg.gen_instr("LABEL")
         else:
             self._print_rule("<If Prime> -> fi")
+            # no else, patch JMPZ to land right after the then body
+            self.cg.backpatch(jmpz_idx, self.cg.get_next_index())
+            self.cg.gen_instr("LABEL")
+
         self._match("Keyword", "fi")
 
     # <Return> -> return <Return Prime>
@@ -446,25 +513,71 @@ class Parser:
         self._match("Separator", ")")
         self._match("Separator", ";")
 
+        # pop TOS and send to standard output
+        self.cg.gen_instr("SOUT")
+
     # <Scan> -> read ( <IDs> ) ;
     def _scan_stmt(self):
         self._match("Keyword", "read")
         self._print_rule("<Statement> -> <Scan>")
         self._print_rule("<Scan> -> read ( <IDs> ) ;")
         self._match("Separator", "(")
-        self._ids()
+
+        # collect all identifiers in the read list, then emit
+        # SIN + POPM for each one in order
+        self._scan_ids()
+
         self._match("Separator", ")")
         self._match("Separator", ";")
+
+    def _scan_ids(self):
+        """
+        Variant of _ids used exclusively inside read().
+        Emits SIN + POPM <addr> for every identifier consumed.
+        Validates each identifier against the symbol table.
+        """
+        lex = self._current_lexeme()
+        self._match("Identifier")
+        self._print_rule("<IDs> -> <Identifier> <IDs Prime>")
+
+        try:
+            addr = self.st.get_address(lex)
+        except SemanticError as e:
+            self._semantic_error(str(e))
+
+        # read one value from stdin and store it at this variable's address
+        self.cg.gen_instr("SIN")
+        self.cg.gen_instr("POPM", addr)
+
+        # handle comma-separated list recursively
+        if self._current_lexeme() == ",":
+            self._match_lexeme(",")
+            self._print_rule("<IDs Prime> -> , <IDs>")
+            self._scan_ids()
+        else:
+            self._print_rule("<IDs Prime> -> eps")
 
     # <While> -> while ( <Condition> ) <Statement>
     def _while_stmt(self):
         self._match("Keyword", "while")
         self._print_rule("<Statement> -> <While>")
         self._print_rule("<While> -> while ( <Condition> ) <Statement>")
+
+        # record the top-of-loop address, emit LABEL
+        top = self.cg.gen_instr("LABEL")
+
         self._match("Separator", "(")
         self._condition()
         self._match("Separator", ")")
+
+        # emit JMPZ as placeholder; address filled in after body
+        jmpz_idx = self.cg.gen_instr("JMPZ")
+
         self._statement()
+
+        # jump back to LABEL, then backpatch the JMPZ to exit address
+        self.cg.gen_instr("JMP", top)
+        self.cg.backpatch(jmpz_idx, self.cg.get_next_index())
 
     # ─── Condition / Relop ────────────────────────────────────────────────────
 
@@ -472,16 +585,23 @@ class Parser:
     def _condition(self):
         self._print_rule("<Condition> -> <Expression> <Relop> <Expression>")
         self._expression()
-        self._relop()
+        op = self._relop()          # returns the instruction mnemonic
         self._expression()
+        # both operands are now on the stack — emit the comparison
+        self.cg.gen_instr(op)
 
     # <Relop> -> == | != | > | < | <= | =>
-    def _relop(self):
+    def _relop(self) -> str:
+        """Consume the relational operator and return its VM instruction mnemonic."""
         lex = self._current_lexeme()
         if lex not in {"==", "!=", ">", "<", "<=", "=>"}:
             self._error(f"expected a relational operator, got '{lex}'")
         self._match("Operator", lex)
         self._print_rule("<Relop> -> == | != | > | < | <= | =>")
+
+        _RELOP_INSTR = {"<": "LES", ">": "GRT", "==": "EQU",
+                        "!=": "NEQ", "<=": "LEQ", "=>": "GEQ"}
+        return _RELOP_INSTR[lex]
 
     # ─── Expressions ──────────────────────────────────────────────────────────
 
@@ -492,18 +612,14 @@ class Parser:
         self._expression_prime()
 
     # <Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime> | eps
-    #
-    # eps case: defer the rule so it prints AFTER the next token upstream
-    # (the token that caused us to exit this non-terminal).
-    # Non-eps case: _match() prints the operator token and then flushes the
-    # pending queue (which holds the eps from _term_prime), producing the
-    # correct interleaving: Token → <Term Prime> eps → <Expression Prime> rule.
     def _expression_prime(self):
         lex = self._current_lexeme()
         if lex in {"+", "-"}:
-            self._match("Operator", lex)          # prints token, then flushes pending eps rules
+            self._match("Operator", lex)
             self._print_rule("<Expression Prime> -> + <Term> <Expression Prime> | - <Term> <Expression Prime>")
             self._term()
+            # both operands now on stack. emit arithmetic instruction
+            self.cg.gen_instr("A" if lex == "+" else "S")
             self._expression_prime()
         else:
             self._defer_rule("<Expression Prime> -> eps")
@@ -515,14 +631,14 @@ class Parser:
         self._term_prime()
 
     # <Term Prime> -> * <Factor> <Term Prime> | / <Factor> <Term Prime> | eps
-    #
-    # eps case: defer so it prints after the token that exits this non-terminal.
     def _term_prime(self):
         lex = self._current_lexeme()
         if lex in {"*", "/"}:
             self._match("Operator", lex)
             self._print_rule("<Term Prime> -> * <Factor> <Term Prime> | / <Factor> <Term Prime>")
             self._factor()
+            # both operands now on stack. emit multiply or divide
+            self.cg.gen_instr("M" if lex == "*" else "D")
             self._term_prime()
         else:
             self._defer_rule("<Term Prime> -> eps")
@@ -550,19 +666,35 @@ class Parser:
         lex = self._current_lexeme()
 
         if tok == "Identifier":
+            lex = self._current_lexeme()    # capture before consuming
             self._match("Identifier")
             self._print_rule("<Factor> -> <Identifier>")
+
+            # Validate identifier is declared before use
+            try:
+                addr = self.st.get_address(lex)
+            except SemanticError as e:
+                self._semantic_error(str(e))
+
+            # push the variable's value onto the stack
+            self.cg.gen_instr("PUSHM", addr)
+
             # <Primary Prime>: optional function-call suffix — no output line
             if self._current_lexeme() == "(":
                 self._match("Separator", "(")
                 self._ids()
                 self._match("Separator", ")")
         elif tok == "Integer":
+            lex = self._current_lexeme()
             self._match("Integer")
             self._print_rule("<Factor> -> <Integer>")
+            # push the integer literal directly onto the stack
+            self.cg.gen_instr("PUSHI", lex)
         elif tok == "Real":
             self._match("Real")
             self._print_rule("<Factor> -> <Real>")
+            # Real is disallowed in Simplified RAT26S. Flag it as a semantic error
+            self._semantic_error("Type 'real' is not allowed in Simplified RAT26S.")
         elif lex == "(":
             self._match("Separator", "(")
             self._print_rule("<Factor> -> ( <Expression> )")
@@ -571,6 +703,8 @@ class Parser:
         elif lex in {"true", "false"}:
             self._match("Keyword", lex)
             self._print_rule("<Factor> -> <Boolean>")
+            # booleans are integers. true=1, false=0
+            self.cg.gen_instr("PUSHI", 1 if lex == "true" else 0)
         else:
             self._error(
                 f"expected a primary expression (identifier, number, or '('), got '{lex}'"

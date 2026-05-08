@@ -12,7 +12,7 @@ Authors: Braedon Collett, Jackson Thompson, and Tony Lin
 import os
 import sys
 from pathlib import Path
-from rat_parser import Parser
+from rat_parser import Parser, SemanticError
 
 # Get the directory where the executable (or main.py) lives
 if getattr(sys, 'frozen', False):
@@ -33,17 +33,25 @@ def main():
         for file in inPath.iterdir():
             source  = file.read_text()
             outName = file.name.removesuffix('.txt') + "_output.txt"
-    
+
             with open(outPath / outName, 'w') as f:
                 f.write(f"{'=' * 50}\n")
                 f.write(f"Source file: {file.name}\n")
                 f.write(f"{'=' * 50}\n\n")
-    
+
                 try:
                     p = Parser(source, out=f)
                     p.parse()
+                    p.cg.print_asm(out=f)
+                    p.st.print_table(out=f)
                     f.write("\nParse completed successfully.\n")
+                    p.cg.print_asm()
+                    p.st.print_table()
                     print("Parse completed successfully.")
+                except SemanticError:
+                    # Error details already written by Parser._semantic_error()
+                    f.write("\nParse terminated due to semantic error.\n")
+                    print("Parse terminated due to semantic error.")
                 except SyntaxError:
                     # Error details already written by Parser._error()
                     f.write("\nParse terminated due to syntax error.\n")
@@ -51,4 +59,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

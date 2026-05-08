@@ -1,36 +1,15 @@
-/* program 3: compute area and perimeter of a rectangle
-   uses two helper functions and a menu-style loop */
+/* this is comment for this sample code for assignment 3  */
 @
-function area (w integer, h integer)
-{
-    return w * h;
-}
-
-function perimeter (w integer, h integer)
-{
-    return 2 * w + 2 * h;
-}
+/*  NO function definitions */
 @
-integer width, height, choice;
-boolean running;
+integer      i, max, sum;    /* declarations */
 @
-running = true;
-read (width);
-read (height);
-
-while (running == true)
-{
-    read (choice);
-    if (choice == 1)
-        write (area (width, height));
-    fi
-    if (choice == 2)
-        write (perimeter (width, height));
-    fi
-    if (choice == 3)
-        running = false;
-    fi
-}
-
-write (running);
+sum = 0;
+i = 1;
+read (max);
+while (i <  max)  {
+      sum = sum + i;
+      i  = i + 1;
+ }
+  write (sum + max);
 @
