@@ -39,6 +39,9 @@ def main():
                 f.write(f"Source file: {file.name}\n")
                 f.write(f"{'=' * 50}\n\n")
 
+                print(f"{'=' * 50}\n")
+                print(f"Source file: {file.name}\n")
+                print(f"{'=' * 50}\n\n")
                 try:
                     p = Parser(source, out=f)
                     p.parse()
@@ -59,3 +62,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    input("\nPress Enter to exit...")

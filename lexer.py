@@ -134,8 +134,8 @@ def lexer(source: str, pos: int) -> tuple[tuple[str, str] | None, int]:
 
     while pos < len(source):
         # Skip whitespace
-        print("spacer")
-        print(source[pos])
+        # print("spacer")
+        # print(source[pos])
         if source[pos].isspace():
             pos += 1
             continue
